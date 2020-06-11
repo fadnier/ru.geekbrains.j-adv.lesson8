@@ -4,6 +4,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 public class ClientHandler {
     private Server server;
@@ -24,7 +26,7 @@ public class ClientHandler {
             new Thread(() -> {
                 try {
                     //Если в течении 5 секунд не будет сообщений по сокету то вызовится исключение
-                    socket.setSoTimeout(0);
+                    timeoutClient(socket,120000);
 
                     //цикл аутентификации
                     while (true) {
@@ -41,10 +43,12 @@ public class ClientHandler {
                                     .getAuthService()
                                     .registration(token[1], token[2], token[3]);
                             if (succeed) {
-                                sendMsg("Регистрация прошла успешно");
+                                //sendMsg("Регистрация прошла успешно");
+                                sendMsg("/regok Регистрация прошла успешно");
                             } else {
-                                sendMsg("Регистрация  не удалась. \n" +
-                                        "Возможно логин уже занят, или данные содержат пробел");
+                                //sendMsg("Регистрация  не удалась. \n" +
+                                //        "Возможно логин уже занят, или данные содержат пробел");
+                                sendMsg("/regnotok Регистрация  не удалась.\nВозможно логин уже занят, или данные содержат пробел");
                             }
                         }
 
@@ -62,6 +66,7 @@ public class ClientHandler {
 
                             if (newNick != null) {
                                 if (!server.isLoginAuthorized(login)) {
+                                    timeoutClient(socket,0);
                                     sendMsg("/authok " + newNick);
                                     nick = newNick;
                                     server.subscribe(this);
@@ -98,8 +103,9 @@ public class ClientHandler {
                             server.broadcastMsg(nick, str);
                         }
                     }
+                } catch (SocketTimeoutException e) {
+                    System.out.println("Отлючение по таймауту");
                 }
-                ///////
                 catch (IOException e) {
                     e.printStackTrace();
                 } finally {
@@ -115,6 +121,14 @@ public class ClientHandler {
 
 
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void timeoutClient(Socket socket, int mSek) {
+        try {
+            socket.setSoTimeout(mSek);
+        } catch (SocketException e) {
             e.printStackTrace();
         }
     }
