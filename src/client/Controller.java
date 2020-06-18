@@ -43,6 +43,7 @@ public class Controller implements Initializable {
     public ListView<String> clientList;
 
     Stage regStage;
+    RegController registrationController;
 
     Socket socket;
     DataInputStream in;
@@ -106,14 +107,24 @@ public class Controller implements Initializable {
                         String str = in.readUTF();
 
                         System.out.println(str);
-
                         if (str.startsWith("/authok ")) {
                             nick = str.split(" ")[1];
                             setAuthenticated(true);
                             break;
                         }
 
-                        textArea.appendText(str + "\n");
+                        if (str.startsWith("/regok ")) {
+                            textArea.appendText(str.split(" ",2)[1] + "\n");
+                            Platform.runLater(() -> regStage.hide());
+                        } else
+                        if (str.startsWith("/regnotok ")) {
+                            textArea.appendText(str.split(" ",2)[1] + "\n");
+                            Platform.runLater(() -> {
+                                registrationController.aswMsg.setText("Ошибка: "+str.split(" ",2)[1]);
+                            });
+                        } else {
+                            textArea.appendText(str + "\n");
+                        }
                     }
 
                     //цикл работы
@@ -207,7 +218,7 @@ public class Controller implements Initializable {
 
             RegController regController = fxmlLoader.getController();
             regController.controller = this;
-
+            registrationController = regController;
         } catch (IOException e) {
             e.printStackTrace();
         }

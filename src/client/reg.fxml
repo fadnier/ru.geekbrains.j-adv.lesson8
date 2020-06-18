@@ -19,7 +19,7 @@
 
     <Label text="Nickname:"/>
     <TextField fx:id="nickField" promptText="nickname"/>
-
+    <Label fx:id="aswMsg" style="-fx-text-fill: red; -fx-font-size: 10px;" text=""/>
     <Button text="Зарегистрироваться" onAction="#clickOk"/>
 
 </VBox>

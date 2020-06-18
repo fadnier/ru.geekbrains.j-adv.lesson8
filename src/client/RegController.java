@@ -1,6 +1,7 @@
 package client;
 
 import javafx.event.ActionEvent;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
@@ -8,6 +9,7 @@ public class RegController {
     public TextField loginField;
     public PasswordField passwordField;
     public TextField nickField;
+    public Label aswMsg;
     Controller controller;
 
 
